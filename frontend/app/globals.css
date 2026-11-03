@@ -3,6 +3,11 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  /* Tells the browser which native widget chrome (select/option popups,
+     scrollbars, date pickers) to use for parts we don't style ourselves.
+     Without this, Chrome's dropdown list can stay light even though the
+     page background is dark. */
+  color-scheme: light;
 }
 
 @theme inline {
@@ -16,6 +21,7 @@
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    color-scheme: dark;
   }
 }
 
@@ -23,4 +29,16 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Selected <option> contrast in the open dropdown list - Chrome applies its
+   own highlight to hovered/focused options, which already has sufficient
+   contrast, but the *selected* item's resting state needs an explicit rule
+   to avoid falling back to the unreadable default once color-scheme: dark
+   is in effect. */
+@media (prefers-color-scheme: dark) {
+  select.theme-aware option:checked {
+    background-color: #111827;
+    color: #f9fafb;
+  }
 }

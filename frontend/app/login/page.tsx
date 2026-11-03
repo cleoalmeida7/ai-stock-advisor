@@ -47,7 +47,7 @@ export default function LoginPage() {
             required
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            className="rounded border border-slate-300 px-2 py-1"
+            className="rounded border border-slate-300 bg-white px-2 py-1 text-slate-900 dark:border-slate-600 dark:bg-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400"
           />
         </label>
 
@@ -59,7 +59,7 @@ export default function LoginPage() {
             minLength={6}
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            className="rounded border border-slate-300 px-2 py-1"
+            className="rounded border border-slate-300 bg-white px-2 py-1 text-slate-900 dark:border-slate-600 dark:bg-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400"
           />
         </label>
 

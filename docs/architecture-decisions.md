@@ -53,4 +53,12 @@ Each entry: context, decision, rationale, alternatives considered, status.
 - **Rationale:** A frontend redirect is trivially bypassable (direct API calls, curl, a modified build) and must never be the only thing standing between a request and another user's data.
 - **Status:** Accepted (2026-11-01).
 
+## ADR-008: Table-level GRANTs are required in addition to RLS policies
+
+- **Context:** After connecting Milestone 1 to a real Supabase project, `/api/instruments/search` and `/api/portfolio/holdings` both returned `500` with Postgres error `42501 permission denied for table instruments/holdings`, even though both tables had RLS enabled with correct policies and the request carried a valid, verified user JWT. Diagnosis (reproduced directly against the live project via curl, bypassing the frontend) confirmed auth and JWT-forwarding were working correctly end-to-end; the failure was strictly at the database layer.
+- **Root cause:** `0001_init.sql` enabled RLS and created policies, but never issued the underlying table-level `GRANT` to the `authenticated` role. In Postgres, RLS policies only filter *which rows* a role may see once that role already has baseline privilege on the table (`SELECT`/`INSERT`/etc.) — they do not grant that baseline privilege themselves. Some Supabase projects have `ALTER DEFAULT PRIVILEGES` pre-configured so new tables auto-grant to `anon`/`authenticated`; this project did not have that, so the explicit grant was required and had simply been omitted from the migration.
+- **Decision:** `0001_init.sql` now explicitly grants `select` on `instruments` and `select, insert, update, delete` on `holdings` to the `authenticated` role, placed immediately after each table's RLS policies so the two are visually paired. No schema change and no seed-data change were needed — this is purely a privilege grant.
+- **Rationale:** RLS and GRANTs are two independent, both-required layers (object-level privilege, then row-level filtering). Documenting this explicitly so it isn't re-discovered as a surprise on the next new table added in a future milestone.
+- **Status:** Accepted (2026-11-03). Already-provisioned projects (including this one) need the GRANT statements run manually once, since the migration file running again for `CREATE TABLE IF NOT EXISTS` won't re-execute against existing tables' privileges automatically — see the instructions given to the user.
+
 <!-- Add new ADRs below as decisions are made. -->

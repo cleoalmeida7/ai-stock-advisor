@@ -16,6 +16,16 @@ interface HoldingFormProps {
   submitting?: boolean;
 }
 
+// Explicit light/dark background + text on every field - native <select>/
+// <option>/<input> boxes don't follow the page's dark background on their
+// own, they need their own colors or they stay white regardless of theme.
+const FIELD_CLASS =
+  "rounded border border-slate-300 bg-white px-2 py-1 text-slate-900 " +
+  "dark:border-slate-600 dark:bg-gray-900 dark:text-slate-100 " +
+  "focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400";
+
+const OPTION_CLASS = "bg-white text-slate-900 dark:bg-gray-900 dark:text-slate-100";
+
 export function HoldingForm({ instruments, onSubmit, submitting = false }: HoldingFormProps) {
   const [instrumentId, setInstrumentId] = useState(instruments[0]?.id ?? "");
   const [quantity, setQuantity] = useState("");
@@ -47,16 +57,19 @@ export function HoldingForm({ instruments, onSubmit, submitting = false }: Holdi
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-3 rounded-lg border border-slate-200 p-4">
+    <form
+      onSubmit={handleSubmit}
+      className="flex flex-col gap-3 rounded-lg border border-slate-200 p-4 dark:border-slate-700"
+    >
       <label className="flex flex-col gap-1 text-sm">
         Instrument
         <select
           value={instrumentId}
           onChange={(event) => setInstrumentId(event.target.value)}
-          className="rounded border border-slate-300 px-2 py-1"
+          className={`theme-aware ${FIELD_CLASS}`}
         >
           {instruments.map((instrument) => (
-            <option key={instrument.id} value={instrument.id}>
+            <option key={instrument.id} value={instrument.id} className={OPTION_CLASS}>
               {instrument.symbol} — {instrument.company_name}
             </option>
           ))}
@@ -70,7 +83,7 @@ export function HoldingForm({ instruments, onSubmit, submitting = false }: Holdi
           step="any"
           value={quantity}
           onChange={(event) => setQuantity(event.target.value)}
-          className="rounded border border-slate-300 px-2 py-1"
+          className={FIELD_CLASS}
         />
       </label>
 
@@ -81,7 +94,7 @@ export function HoldingForm({ instruments, onSubmit, submitting = false }: Holdi
           step="any"
           value={averageBuyPrice}
           onChange={(event) => setAverageBuyPrice(event.target.value)}
-          className="rounded border border-slate-300 px-2 py-1"
+          className={FIELD_CLASS}
         />
       </label>
 

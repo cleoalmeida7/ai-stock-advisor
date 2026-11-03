@@ -37,6 +37,12 @@ create policy "instruments are readable by authenticated users"
     to authenticated
     using (true);
 
+-- RLS policies only restrict *which rows* a role can see - the role still
+-- needs a base table-level GRANT to query the table at all. Some Supabase
+-- projects pre-configure default privileges so new tables grant to
+-- anon/authenticated automatically; this one doesn't, so it's explicit here.
+grant select on public.instruments to authenticated;
+
 -- ---------------------------------------------------------------------------
 -- holdings: a user's manually-entered positions (Milestone 1 scope).
 --
@@ -90,3 +96,7 @@ create policy "users can delete their own holdings"
     using (auth.uid() = user_id);
 
 create index if not exists holdings_user_id_idx on public.holdings (user_id);
+
+-- See the comment above the instruments GRANT: RLS alone does not grant
+-- table access, it only filters rows once access is already granted.
+grant select, insert, update, delete on public.holdings to authenticated;
