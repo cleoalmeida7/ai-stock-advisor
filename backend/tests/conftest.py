@@ -10,10 +10,10 @@ import pytest
 from fastapi import Header, HTTPException, status
 from fastapi.testclient import TestClient
 
-from app.api.deps import get_instrument_repository, get_portfolio_repository
+from app.api.deps import get_instrument_repository, get_portfolio_repository, get_price_repository
 from app.core.auth import AuthContext, get_current_user
 from app.main import app
-from tests.fakes import FakeInstrumentRepository, FakePortfolioRepository
+from tests.fakes import FakeInstrumentRepository, FakePortfolioRepository, FakePriceRepository
 
 FAKE_TOKENS = {
     "user-a-token": "user-a",
@@ -44,10 +44,20 @@ def instrument_repo() -> FakeInstrumentRepository:
 
 
 @pytest.fixture
-def client(portfolio_repo: FakePortfolioRepository, instrument_repo: FakeInstrumentRepository) -> TestClient:
+def price_repo() -> FakePriceRepository:
+    return FakePriceRepository()
+
+
+@pytest.fixture
+def client(
+    portfolio_repo: FakePortfolioRepository,
+    instrument_repo: FakeInstrumentRepository,
+    price_repo: FakePriceRepository,
+) -> TestClient:
     app.dependency_overrides[get_current_user] = fake_get_current_user
     app.dependency_overrides[get_portfolio_repository] = lambda: portfolio_repo
     app.dependency_overrides[get_instrument_repository] = lambda: instrument_repo
+    app.dependency_overrides[get_price_repository] = lambda: price_repo
     with TestClient(app) as test_client:
         yield test_client
     app.dependency_overrides.clear()

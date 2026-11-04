@@ -52,14 +52,17 @@ The frontend only ever reads from the backend API, which reads from the DB and t
 
 Proposed, not all implemented immediately — see section below and `docs/architecture-decisions.md` for what ships in Milestone 1 vs later:
 
-- `/api/portfolio`, `/api/portfolio/holdings`, `/api/portfolio/import`
-- `/api/instruments/search`, `/api/instruments/{id}`
-- `/api/market/{symbol}/history`, `/api/market/{symbol}/overview`
-- `/api/analysis/{symbol}`, `/api/analysis/{symbol}/run`, `/api/analysis/history`
-- `/api/news`, `/api/news/{id}`
-- `/api/ai/explain`, `/api/ai/explanations/{id}`
-- `/api/portfolio/metrics`, `/api/portfolio/risk`, `/api/portfolio/benchmark`
-- `/api/evaluation/summary`, `/api/evaluation/history`
+- ✅ `/api/portfolio/holdings` (GET/POST/DELETE) — Milestone 1
+- `/api/portfolio/import` — not yet built
+- ✅ `/api/instruments/search` — Milestone 1
+- `/api/instruments/{id}` — not yet built (not needed; search covers lookup today)
+- ✅ `/api/market/{instrument_id}/history` — Milestone 2 (range-limited, no `/overview` yet)
+- ✅ `/api/analysis/{instrument_id}` — Milestone 2 (on-demand; no `/run`/`/history` persistence yet - see "Explicitly out of scope" in the Milestone 2 plan)
+- `/api/news`, `/api/news/{id}` — not yet built (Weeks 5-6)
+- `/api/ai/explain`, `/api/ai/explanations/{id}` — not yet built (Weeks 5-6)
+- ✅ `/api/portfolio/metrics` — Milestone 2 (valuation, P/L, sector concentration, missing/stale-price flagging)
+- `/api/portfolio/risk`, `/api/portfolio/benchmark` — not yet built
+- `/api/evaluation/summary`, `/api/evaluation/history` — not yet built (Weeks 9-10)
 
 ## Database relationships (summary)
 

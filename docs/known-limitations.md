@@ -9,6 +9,7 @@ Update this file whenever a limitation is discovered or resolved. Do not delete 
 - **Corporate actions** (splits, bonuses, dividends) are not uniformly reliable in free data sources. Where confidence is low, the system must flag the data as unverified rather than silently adjusting it.
 - **Fundamental data** publication dates and reporting periods are not the same thing, and free sources often blur them. This directly affects the integrity of any fundamentals-based scoring.
 - **Instrument master is a ~20-symbol development seed** (`database/seed/instruments_seed.sql`), not a complete NSE/BSE listing. It exists only so Milestone 1's holding-creation validation and symbol search have real rows to work against. `instruments.data_source` distinguishes seed rows (`'dev_seed'`) from any future bulk import, which will extend the same table rather than requiring a schema change. No code or documentation should imply this seed is a complete exchange master.
+- **Sector classifications are an approximate, development-only taxonomy.** `instruments.sector` (added in Milestone 2) was hand-assigned for the 20 seed symbols using a simplified GICS-like grouping (e.g. "Financial Services", "Information Technology"), not a licensed sector-data feed. It's accurate enough for Milestone 2's portfolio concentration metric but must not be presented as an authoritative classification. The column stays nullable so future, unclassified instruments aren't blocked on this.
 
 ## AI
 

@@ -7,3 +7,4 @@ class InstrumentRead(BaseModel):
     symbol: str
     company_name: str
     data_source: str
+    sector: str | None = None

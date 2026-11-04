@@ -1,0 +1,57 @@
+# Scheduled market-data ingestion. Runs backend/scripts/ingest_prices.py,
+# the ONLY place in this codebase that ever uses SUPABASE_SERVICE_ROLE_KEY.
+# See docs/architecture-decisions.md ADR-009 for the full rationale - the
+# safeguards below are not incidental, they are the point of this file:
+#
+#   - Trigger is schedule/workflow_dispatch ONLY. Never add `pull_request`
+#     or `pull_request_target` here - those run against a PR's (possibly
+#     forked, untrusted) code with repo context, and this workflow must
+#     never offer that code any opportunity to see the secret.
+#   - permissions is deliberately minimal: this job only checks out the
+#     repo and makes outbound HTTPS calls, it never needs write access to
+#     anything in the repo itself.
+#   - The secret is referenced in exactly one place below, for the one
+#     step that runs the ingestion script. No other workflow in this repo
+#     (e.g. a future test/CI workflow, which only ever needs the fakes in
+#     tests/, never real credentials) should ever reference it.
+#   - The script itself never prints the key (see backend/scripts/ingest_prices.py);
+#     GitHub also auto-masks any exact-match secret value in logs as a
+#     second layer, not the only one.
+
+name: Ingest market data
+
+"on":
+  schedule:
+    # 11:00 UTC = 16:30 IST, after NSE/BSE close (15:30 IST), Mon-Fri.
+    # Doesn't account for Indian market holidays - the ingestion script
+    # already handles "no data for this date" gracefully on those days.
+    - cron: "0 11 * * 1-5"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run ingestion
+        working-directory: backend
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: python scripts/ingest_prices.py

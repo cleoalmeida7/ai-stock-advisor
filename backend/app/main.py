@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import instruments, portfolio
+from app.api import analysis, instruments, portfolio
 from app.core.config import settings
 
 
@@ -18,6 +18,7 @@ def create_app() -> FastAPI:
 
     app.include_router(portfolio.router)
     app.include_router(instruments.router)
+    app.include_router(analysis.router)
 
     @app.get("/health")
     def health() -> dict[str, str]:

@@ -5,8 +5,8 @@ import { HoldingForm } from "@/components/HoldingForm";
 import type { Instrument } from "@/types/holding";
 
 const INSTRUMENTS: Instrument[] = [
-  { id: "inst-1", exchange: "NSE", symbol: "RELIANCE", company_name: "Reliance Industries Ltd", data_source: "dev_seed" },
-  { id: "inst-2", exchange: "NSE", symbol: "TCS", company_name: "Tata Consultancy Services Ltd", data_source: "dev_seed" },
+  { id: "inst-1", exchange: "NSE", symbol: "RELIANCE", company_name: "Reliance Industries Ltd", data_source: "dev_seed", sector: null },
+  { id: "inst-2", exchange: "NSE", symbol: "TCS", company_name: "Tata Consultancy Services Ltd", data_source: "dev_seed", sector: null },
 ];
 
 describe("HoldingForm", () => {

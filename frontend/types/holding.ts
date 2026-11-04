@@ -4,6 +4,7 @@ export interface Instrument {
   symbol: string;
   company_name: string;
   data_source: string;
+  sector: string | null;
 }
 
 export interface Holding {

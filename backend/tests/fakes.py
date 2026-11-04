@@ -6,8 +6,9 @@ Milestone 1 plan's verification section.
 """
 
 import itertools
-from datetime import datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 
+from app.market_data.provider import PriceBar
 from app.repositories.exceptions import DuplicateHoldingError
 from app.schemas.holding import HoldingCreate, HoldingRead
 from app.schemas.instrument import InstrumentRead
@@ -79,3 +80,29 @@ class FakePortfolioRepository:
             created_at=row["created_at"],
             instrument=row["instrument"],
         )
+
+
+class FakePriceRepository:
+    """
+    Mirrors SupabasePriceRepository's contract (app/repositories/price_repository.py)
+    without any network/DB access - used by /api/analysis and
+    /api/portfolio/metrics route tests (Steps 5-6). The real Supabase-backed
+    implementation is verified against the live project, same as every
+    other repository's Supabase impl in this codebase (none of them get a
+    direct unit test of their own query-building - see Milestone 1).
+    """
+
+    def __init__(self, bars_by_instrument: dict[str, list[PriceBar]] | None = None) -> None:
+        self._bars_by_instrument = bars_by_instrument or {}
+
+    def latest(self, instrument_id: str) -> PriceBar | None:
+        bars = self._bars_by_instrument.get(instrument_id, [])
+        return bars[-1] if bars else None
+
+    def history(self, instrument_id: str, days: int) -> list[PriceBar]:
+        cutoff = date.today() - timedelta(days=days)
+        bars = self._bars_by_instrument.get(instrument_id, [])
+        return [bar for bar in bars if bar.price_date >= cutoff]
+
+    def set_bars(self, instrument_id: str, bars: list[PriceBar]) -> None:
+        self._bars_by_instrument[instrument_id] = bars
